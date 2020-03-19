@@ -38,16 +38,16 @@
             <transactionManager type="JDBC">
             </transactionManager>
             <dataSource type="UNPOOLED">
-                <property name="driver" value="oracle.jdbc.driver.OracleDriver" />
-                <property name="url" value="jdbc:oracle:thin:@192.168.2.250:1521:orcl" />
-                <property name="username" value="cube" />
-                <property name="password" value="cube" />
+                <property name="driver" value="com.mysql.jdbc.Driver" />
+                <property name="url" value="jdbc:mysql://192.168.2.250:3306/pie?useUnicode=true&amp;characterEncoding=UTF-8&amp;useSSL=false&amp;autoReconnect=true&amp;zeroDateTimeBehavior=convertToNull" />
+                <property name="username" value="root" />
+                <property name="password" value="" />
             </dataSource>
         </environment>
     </environments>
 
     <mappers>
-        <mapper class="tk.mybatis.mapper.additional.dialect.oracle.DemoCountryMapper"/>
+        <mapper class="tk.mybatis.mapper.additional.dialect.mysql.TestMapper"/>
     </mappers>
 
 </configuration>

@@ -29,10 +29,12 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import tk.mybatis.mapper.additional.BaseTest;
+import tk.mybatis.mapper.additional.dialect.postgres.TestMapper;
 
 import java.io.IOException;
 import java.io.Reader;
 import java.net.URL;
+import java.sql.Timestamp;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -81,6 +83,30 @@ public class OracleTest extends BaseTest {
             Assert.assertEquals(3, updates);
         } finally {
             //sqlSession.commit();
+            sqlSession.close();
+        }
+    }
+
+    @Test
+    public void testNow() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            DemoCountryMapper mapper = sqlSession.getMapper(DemoCountryMapper.class);
+            Timestamp now = mapper.currentTime();
+            System.out.println(now);
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+    @Test
+    public void testSequence() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            DemoCountryMapper mapper = sqlSession.getMapper(DemoCountryMapper.class);
+            long value = mapper.nextVal("SEQ_KE99_ACT_ID");
+            System.out.println(value);
+        } finally {
             sqlSession.close();
         }
     }
