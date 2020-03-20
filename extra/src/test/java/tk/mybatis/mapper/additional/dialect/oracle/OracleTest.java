@@ -29,7 +29,6 @@ import org.junit.Assert;
 import org.junit.Ignore;
 import org.junit.Test;
 import tk.mybatis.mapper.additional.BaseTest;
-import tk.mybatis.mapper.additional.dialect.postgres.TestMapper;
 
 import java.io.IOException;
 import java.io.Reader;
@@ -52,7 +51,9 @@ public class OracleTest extends BaseTest {
     protected Reader getConfigFileAsReader() throws IOException {
         URL url = getClass().getResource("mybatis-config.xml");
         return toReader(url);
-    };
+    }
+
+    ;
 
     @Override
     protected void runSql(Reader reader) {
@@ -76,9 +77,9 @@ public class OracleTest extends BaseTest {
         try {
             DemoCountryMapper mapper = sqlSession.getMapper(DemoCountryMapper.class);
             List<DemoCountry> countryList = new ArrayList<DemoCountry>();
-            countryList.add(new DemoCountry("20", "Zimbabwe","ZW"));
-            countryList.add(new DemoCountry("21", "Zaire","ZR"));
-            countryList.add(new DemoCountry("22", "Zambia","ZM"));
+            countryList.add(new DemoCountry("20", "Zimbabwe", "ZW"));
+            countryList.add(new DemoCountry("21", "Zaire", "ZR"));
+            countryList.add(new DemoCountry("22", "Zambia", "ZM"));
             int updates = mapper.insertList(countryList);
             Assert.assertEquals(3, updates);
         } finally {
@@ -106,6 +107,21 @@ public class OracleTest extends BaseTest {
             DemoCountryMapper mapper = sqlSession.getMapper(DemoCountryMapper.class);
             long value = mapper.nextVal("SEQ_KE99_ACT_ID");
             System.out.println(value);
+        } finally {
+            sqlSession.close();
+        }
+    }
+
+    @Test
+    public void testProcedure() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            DemoCountryMapper mapper = sqlSession.getMapper(DemoCountryMapper.class);
+            TestProcParam procParam = new TestProcParam();
+            procParam.setParam1(1);
+            procParam.setParam2(100);
+            mapper.callProcedure(procParam);
+            System.out.println(procParam.getRes());
         } finally {
             sqlSession.close();
         }

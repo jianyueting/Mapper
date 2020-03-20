@@ -38,6 +38,10 @@ public class MsUtil {
 
     public static final Cache CLASS_CACHE = new SoftCache(new PerpetualCache("MAPPER_CLASS_CACHE"));
 
+    public static Class<?> getMapperClass(MappedStatement ms) {
+        return getMapperClass(ms.getId());
+    }
+
     /**
      * 根据msId获取接口类
      *
@@ -51,7 +55,7 @@ public class MsUtil {
         String mapperClassStr = msId.substring(0, msId.lastIndexOf("."));
         //由于一个接口中的每个方法都会进行下面的操作，因此缓存
         Class<?> mapperClass = (Class<?>) CLASS_CACHE.getObject(mapperClassStr);
-        if(mapperClass != null){
+        if (mapperClass != null) {
             return mapperClass;
         }
         ClassLoader[] classLoader = getClassLoaders();

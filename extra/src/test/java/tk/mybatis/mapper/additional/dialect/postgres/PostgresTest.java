@@ -51,4 +51,16 @@ public class PostgresTest extends BaseTest {
             sqlSession.close();
         }
     }
+
+    @Test
+    public void testProcedure() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            TestMapper mapper = sqlSession.getMapper(TestMapper.class);
+            Object object = mapper.callProcedure(1, 2);
+            System.out.println(object);
+        } finally {
+            sqlSession.close();
+        }
+    }
 }

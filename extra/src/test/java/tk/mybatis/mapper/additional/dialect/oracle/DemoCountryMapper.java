@@ -7,5 +7,5 @@ import tk.mybatis.mapper.common.base.BaseSelectMapper;
  * @author: qrqhuangcy
  * @date: 2018-11-17
  **/
-public interface DemoCountryMapper extends BaseSelectMapper<DemoCountry>, OracleMapper<DemoCountry>, OracleCurrentTimeMapper, OracleSequenceNextValMapper {
+public interface DemoCountryMapper extends BaseSelectMapper<DemoCountry>, OracleMapper<DemoCountry>, OracleCurrentTimeMapper, OracleSequenceNextValMapper,OracleProcedureMapper {
 }

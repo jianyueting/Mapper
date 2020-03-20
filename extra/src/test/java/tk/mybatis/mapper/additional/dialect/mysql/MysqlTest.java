@@ -39,4 +39,18 @@ public class MysqlTest extends BaseTest {
             sqlSession.close();
         }
     }
+
+    @Test
+    public void testProcedure() {
+        SqlSession sqlSession = getSqlSession();
+        try {
+            TestMapper mapper = sqlSession.getMapper(TestMapper.class);
+            TestProcParam param = new TestProcParam();
+            param.setP1("world");
+            mapper.callProcedure(param);
+            System.out.println(param.getP2());
+        } finally {
+            sqlSession.close();
+        }
+    }
 }
