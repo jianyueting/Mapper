@@ -63,6 +63,23 @@ public class BaseSelectProvider extends MapperTemplate {
      * @param ms
      * @return
      */
+    public String selectOneForUpdate(MappedStatement ms) {
+        Class<?> entityClass = getEntityClass(ms);
+        //修改返回值类型为实体类型
+        setResultType(ms, entityClass);
+        StringBuilder sql = new StringBuilder();
+        sql.append(SqlHelper.selectAllColumns(entityClass));
+        sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
+        sql.append(SqlHelper.whereAllIfColumnsForUpdate(entityClass, isNotEmpty()));
+        return sql.toString();
+    }
+
+    /**
+     * 查询
+     *
+     * @param ms
+     * @return
+     */
     public String select(MappedStatement ms) {
         Class<?> entityClass = getEntityClass(ms);
         //修改返回值类型为实体类型
@@ -71,6 +88,24 @@ public class BaseSelectProvider extends MapperTemplate {
         sql.append(SqlHelper.selectAllColumns(entityClass));
         sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
         sql.append(SqlHelper.whereAllIfColumns(entityClass, isNotEmpty()));
+        sql.append(SqlHelper.orderByDefault(entityClass));
+        return sql.toString();
+    }
+
+    /**
+     * 查询
+     *
+     * @param ms
+     * @return
+     */
+    public String selectForUpdate(MappedStatement ms) {
+        Class<?> entityClass = getEntityClass(ms);
+        //修改返回值类型为实体类型
+        setResultType(ms, entityClass);
+        StringBuilder sql = new StringBuilder();
+        sql.append(SqlHelper.selectAllColumns(entityClass));
+        sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
+        sql.append(SqlHelper.whereAllIfColumnsForUpdate(entityClass, isNotEmpty()));
         sql.append(SqlHelper.orderByDefault(entityClass));
         return sql.toString();
     }
@@ -98,6 +133,22 @@ public class BaseSelectProvider extends MapperTemplate {
         sql.append(SqlHelper.selectAllColumns(entityClass));
         sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
         sql.append(SqlHelper.wherePKColumns(entityClass));
+        return sql.toString();
+    }
+
+    /**
+     * 根据主键进行查询
+     *
+     * @param ms
+     */
+    public String selectByPrimaryKeyForUpdate(MappedStatement ms) {
+        final Class<?> entityClass = getEntityClass(ms);
+        //将返回值修改为实体类型
+        setResultType(ms, entityClass);
+        StringBuilder sql = new StringBuilder();
+        sql.append(SqlHelper.selectAllColumns(entityClass));
+        sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
+        sql.append(SqlHelper.wherePKColumnsForUpdate(entityClass));
         return sql.toString();
     }
 

@@ -379,7 +379,7 @@ public class SqlHelper {
      *
      * @param entityClass
      * @param defaultTableName
-     * @param parameterName 动态表名的参数名
+     * @param parameterName    动态表名的参数名
      * @return
      */
     public static String insertIntoTable(Class<?> entityClass, String defaultTableName, String parameterName) {
@@ -493,7 +493,7 @@ public class SqlHelper {
                     sql.append("<bind name=\"").append(column.getProperty()).append("Version\" value=\"");
                     //version = ${@tk.mybatis.mapper.version@nextVersionClass("versionClass", version)}
                     sql.append("@tk.mybatis.mapper.version.VersionUtil@nextVersion(")
-                        .append("@").append(versionClass).append("@class, ");
+                            .append("@").append(versionClass).append("@class, ");
                     if (StringUtil.isNotEmpty(entityName)) {
                         sql.append(entityName).append(".");
                     }
@@ -537,7 +537,7 @@ public class SqlHelper {
                 logicDeleteColumn = column;
             }
             if (!column.isId() && column.isUpdatable()) {
-                if(column.getEntityField().isAnnotationPresent(Version.class)){
+                if (column.getEntityField().isAnnotationPresent(Version.class)) {
                     //ignore
                 } else if (column == logicDeleteColumn) {
                     sql.append(logicDeleteColumnEqualsValue(column, false)).append(",");
@@ -641,6 +641,60 @@ public class SqlHelper {
     }
 
     /**
+     * where主键条件
+     *
+     * @param entityClass
+     * @return
+     */
+    public static String wherePKColumnsForUpdate(Class<?> entityClass) {
+        return wherePKColumnsForUpdate(entityClass, false);
+    }
+
+    /**
+     * where主键条件
+     *
+     * @param entityClass
+     * @param useVersion
+     * @return
+     */
+    public static String wherePKColumnsForUpdate(Class<?> entityClass, boolean useVersion) {
+        return wherePKColumnsForUpdate(entityClass, null, useVersion);
+    }
+
+    /**
+     * where主键条件
+     *
+     * @param entityClass
+     * @param entityName
+     * @param useVersion
+     * @return
+     */
+    public static String wherePKColumnsForUpdate(Class<?> entityClass, String entityName, boolean useVersion) {
+        StringBuilder sql = new StringBuilder();
+        boolean hasLogicDelete = hasLogicDeleteColumn(entityClass);
+
+        sql.append("<where>");
+        //获取全部列
+        Set<EntityColumn> columnSet = EntityHelper.getPKColumns(entityClass);
+        //当某个列有主键策略时，不需要考虑他的属性是否为空，因为如果为空，一定会根据主键策略给他生成一个值
+        for (EntityColumn column : columnSet) {
+            sql.append(" AND ").append(column.getColumnEqualsHolder(entityName));
+        }
+        if (useVersion) {
+            sql.append(whereVersion(entityClass));
+        }
+
+        if (hasLogicDelete) {
+            sql.append(whereLogicDelete(entityClass, false));
+        }
+
+        sql.append(" for update");
+
+        sql.append("</where>");
+        return sql.toString();
+    }
+
+    /**
      * where所有列的条件，会判断是否!=null
      *
      * @param entityClass
@@ -685,6 +739,56 @@ public class SqlHelper {
             sql.append(whereLogicDelete(entityClass, false));
         }
 
+        sql.append("</where>");
+        return sql.toString();
+    }
+
+    /**
+     * where所有列的条件，会判断是否!=null
+     *
+     * @param entityClass
+     * @param empty
+     * @return
+     */
+    public static String whereAllIfColumnsForUpdate(Class<?> entityClass, boolean empty) {
+        return whereAllIfColumnsForUpdate(entityClass, empty, false);
+    }
+
+    /**
+     * where所有列的条件，会判断是否!=null
+     *
+     * @param entityClass
+     * @param empty
+     * @param useVersion
+     * @return
+     */
+    public static String whereAllIfColumnsForUpdate(Class<?> entityClass, boolean empty, boolean useVersion) {
+        StringBuilder sql = new StringBuilder();
+        boolean hasLogicDelete = false;
+
+        sql.append("<where>");
+        //获取全部列
+        Set<EntityColumn> columnSet = EntityHelper.getColumns(entityClass);
+        EntityColumn logicDeleteColumn = SqlHelper.getLogicDeleteColumn(entityClass);
+        //当某个列有主键策略时，不需要考虑他的属性是否为空，因为如果为空，一定会根据主键策略给他生成一个值
+        for (EntityColumn column : columnSet) {
+            if (!useVersion || !column.getEntityField().isAnnotationPresent(Version.class)) {
+                // 逻辑删除，后面拼接逻辑删除字段的未删除条件
+                if (logicDeleteColumn != null && logicDeleteColumn == column) {
+                    hasLogicDelete = true;
+                    continue;
+                }
+                sql.append(getIfNotNull(column, " AND " + column.getColumnEqualsHolder(), empty));
+            }
+        }
+        if (useVersion) {
+            sql.append(whereVersion(entityClass));
+        }
+        if (hasLogicDelete) {
+            sql.append(whereLogicDelete(entityClass, false));
+        }
+
+        sql.append(" for update");
         sql.append("</where>");
         return sql.toString();
     }
