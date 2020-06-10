@@ -61,6 +61,8 @@
     </environments>
 
     <mappers>
+        <mapper resource="SysUserMapper.xml"/>
+        <mapper resource="SysRoleMapper.xml"/>
         <mapper resource="CachedCountryMapper.xml"/>
         <mapper class="tk.mybatis.mapper.mapper.CountryMapper"/>
         <mapper class="tk.mybatis.mapper.mapper.Country2Mapper"/>

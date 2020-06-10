@@ -294,3 +294,31 @@ insert into tb_user (id,username,password,is_valid) values (6,'test6','eeee',0);
 insert into tb_user (id,username,password,is_valid) values (7,'test7','ffff',0);
 insert into tb_user (id,username,password,is_valid) values (8,'test','gggg',1);
 insert into tb_user (id,username,password,is_valid) values (9,'test','gggg',0);
+
+create table sys_user(
+  id integer primary key,
+  username varchar(32) not null,
+  password varchar(32) not null
+);
+
+create table sys_role(
+  id integer primary key,
+  rolename varchar(32) not null
+);
+
+create table sys_user_role (
+  user_id integer,
+  role_id integer,
+  primary key(user_id,role_id)
+);
+
+insert into sys_user(id,username,password) values(0,'jeff','');
+insert into sys_user(id,username,password) values(1,'jack','');
+
+insert into sys_role(id,rolename) values(0,'role_admin');
+insert into sys_role(id,rolename) values(1,'role_user');
+
+insert into sys_user_role(user_id,role_id) values(0,0);
+insert into sys_user_role(user_id,role_id) values(0,1);
+insert into sys_user_role(user_id,role_id) values(1,0);
+insert into sys_user_role(user_id,role_id) values(1,1);

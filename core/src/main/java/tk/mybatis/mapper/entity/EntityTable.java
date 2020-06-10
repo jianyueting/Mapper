@@ -31,10 +31,12 @@ import org.apache.ibatis.session.Configuration;
 import org.apache.ibatis.type.TypeException;
 import org.apache.ibatis.type.TypeHandler;
 import tk.mybatis.mapper.MapperException;
+import tk.mybatis.mapper.annotation.EntityColumn;
 import tk.mybatis.mapper.util.StringUtil;
 
 import javax.persistence.Table;
 import java.lang.reflect.Constructor;
+import java.lang.reflect.Field;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
@@ -47,16 +49,16 @@ import java.util.regex.Pattern;
 public class EntityTable {
     public static final Pattern DELIMITER = Pattern.compile("^[`\\[\"]?(.*?)[`\\]\"]?$");
     //属性和列对应
-    protected Map<String, EntityColumn> propertyMap;
+    protected Map<String, tk.mybatis.mapper.entity.EntityColumn> propertyMap;
     private String name;
     private String catalog;
     private String schema;
     private String orderByClause;
     private String baseSelect;
     //实体类 => 全部列属性
-    private LinkedHashSet<EntityColumn> entityClassColumns;
+    private LinkedHashSet<tk.mybatis.mapper.entity.EntityColumn> entityClassColumns;
     //实体类 => 主键信息
-    private LinkedHashSet<EntityColumn> entityClassPKColumns;
+    private LinkedHashSet<tk.mybatis.mapper.entity.EntityColumn> entityClassPKColumns;
     //useGenerator包含多列的时候需要用到
     private List<String> keyProperties;
     private List<String> keyColumns;
@@ -83,11 +85,11 @@ public class EntityTable {
             return null;
         }
         List<ResultMapping> resultMappings = new ArrayList<ResultMapping>();
-        for (EntityColumn entityColumn : entityClassColumns) {
+        for (tk.mybatis.mapper.entity.EntityColumn entityColumn : entityClassColumns) {
             String column = entityColumn.getColumn();
             //去掉可能存在的分隔符
             Matcher matcher = DELIMITER.matcher(column);
-            if(matcher.find()){
+            if (matcher.find()) {
                 column = matcher.group(1);
             }
             ResultMapping.Builder builder = new ResultMapping.Builder(configuration, entityColumn.getProperty(), column, entityColumn.getJavaType());
@@ -96,7 +98,7 @@ public class EntityTable {
             }
             if (entityColumn.getTypeHandler() != null) {
                 try {
-                    builder.typeHandler(getInstance(entityColumn.getJavaType(),entityColumn.getTypeHandler()));
+                    builder.typeHandler(getInstance(entityColumn.getJavaType(), entityColumn.getTypeHandler()));
                 } catch (Exception e) {
                     throw new MapperException(e);
                 }
@@ -108,6 +110,18 @@ public class EntityTable {
             builder.flags(flags);
             resultMappings.add(builder.build());
         }
+        //添加字段
+        Field[] fields = entityClass.getDeclaredFields();
+        for (Field field : fields) {
+            if (field.isAnnotationPresent(EntityColumn.class)) {
+                EntityColumn entityColumn = field.getAnnotation(EntityColumn.class);
+                ResultMapping.Builder builder = new ResultMapping.Builder(configuration, entityColumn.property(), entityColumn.column(), field.getType());
+                builder.nestedQueryId(entityColumn.selectId());
+
+                builder.foreignColumn(entityColumn.column());
+                resultMappings.add(builder.build());
+            }
+        }
         ResultMap.Builder builder = new ResultMap.Builder(configuration, "BaseMapperResultMap", this.entityClass, resultMappings, true);
         this.resultMap = builder.build();
         return this.resultMap;
@@ -117,14 +131,15 @@ public class EntityTable {
      * 初始化 - Example 会使用
      */
     public void initPropertyMap() {
-        propertyMap = new HashMap<String, EntityColumn>(getEntityClassColumns().size());
-        for (EntityColumn column : getEntityClassColumns()) {
+        propertyMap = new HashMap<String, tk.mybatis.mapper.entity.EntityColumn>(getEntityClassColumns().size());
+        for (tk.mybatis.mapper.entity.EntityColumn column : getEntityClassColumns()) {
             propertyMap.put(column.getProperty(), column);
         }
     }
 
     /**
      * 实例化TypeHandler
+     *
      * @param javaTypeClass
      * @param typeHandlerClass
      * @return
@@ -132,22 +147,22 @@ public class EntityTable {
     @SuppressWarnings("unchecked")
     public <T> TypeHandler<T> getInstance(Class<?> javaTypeClass, Class<?> typeHandlerClass) {
         if (javaTypeClass != null) {
-          try {
-            Constructor<?> c = typeHandlerClass.getConstructor(Class.class);
-            return (TypeHandler<T>) c.newInstance(javaTypeClass);
-          } catch (NoSuchMethodException ignored) {
-            // ignored
-          } catch (Exception e) {
-            throw new TypeException("Failed invoking constructor for handler " + typeHandlerClass, e);
-          }
+            try {
+                Constructor<?> c = typeHandlerClass.getConstructor(Class.class);
+                return (TypeHandler<T>) c.newInstance(javaTypeClass);
+            } catch (NoSuchMethodException ignored) {
+                // ignored
+            } catch (Exception e) {
+                throw new TypeException("Failed invoking constructor for handler " + typeHandlerClass, e);
+            }
         }
         try {
-          Constructor<?> c = typeHandlerClass.getConstructor();
-          return (TypeHandler<T>) c.newInstance();
+            Constructor<?> c = typeHandlerClass.getConstructor();
+            return (TypeHandler<T>) c.newInstance();
         } catch (Exception e) {
-          throw new TypeException("Unable to find a usable constructor for " + typeHandlerClass, e);
+            throw new TypeException("Unable to find a usable constructor for " + typeHandlerClass, e);
         }
-      }
+    }
 
     public String getBaseSelect() {
         return baseSelect;
@@ -169,19 +184,19 @@ public class EntityTable {
         return entityClass;
     }
 
-    public LinkedHashSet<EntityColumn> getEntityClassColumns() {
+    public LinkedHashSet<tk.mybatis.mapper.entity.EntityColumn> getEntityClassColumns() {
         return entityClassColumns;
     }
 
-    public void setEntityClassColumns(LinkedHashSet<EntityColumn> entityClassColumns) {
+    public void setEntityClassColumns(LinkedHashSet<tk.mybatis.mapper.entity.EntityColumn> entityClassColumns) {
         this.entityClassColumns = entityClassColumns;
     }
 
-    public LinkedHashSet<EntityColumn> getEntityClassPKColumns() {
+    public LinkedHashSet<tk.mybatis.mapper.entity.EntityColumn> getEntityClassPKColumns() {
         return entityClassPKColumns;
     }
 
-    public void setEntityClassPKColumns(LinkedHashSet<EntityColumn> entityClassPKColumns) {
+    public void setEntityClassPKColumns(LinkedHashSet<tk.mybatis.mapper.entity.EntityColumn> entityClassPKColumns) {
         this.entityClassPKColumns = entityClassPKColumns;
     }
 
@@ -243,7 +258,7 @@ public class EntityTable {
         return "";
     }
 
-    public Map<String, EntityColumn> getPropertyMap() {
+    public Map<String, tk.mybatis.mapper.entity.EntityColumn> getPropertyMap() {
         return propertyMap;
     }
 
