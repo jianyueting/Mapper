@@ -115,7 +115,7 @@ public class EntityTable {
         for (Field field : fields) {
             if (field.isAnnotationPresent(EntityColumn.class)) {
                 EntityColumn entityColumn = field.getAnnotation(EntityColumn.class);
-                ResultMapping.Builder builder = new ResultMapping.Builder(configuration, entityColumn.property(), entityColumn.column(), field.getType());
+                ResultMapping.Builder builder = new ResultMapping.Builder(configuration, field.getName(), entityColumn.column(), field.getType());
                 builder.nestedQueryId(entityColumn.selectId());
 
                 builder.foreignColumn(entityColumn.column());

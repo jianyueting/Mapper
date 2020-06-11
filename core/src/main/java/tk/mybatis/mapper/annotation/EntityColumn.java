@@ -16,13 +16,6 @@ public @interface EntityColumn {
     String column();
 
     /**
-     * 实体类属性
-     *
-     * @return
-     */
-    String property();
-
-    /**
      * 选择id，调用其他类，要写全路径
      *
      * @return

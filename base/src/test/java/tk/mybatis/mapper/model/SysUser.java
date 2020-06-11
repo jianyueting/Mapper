@@ -14,7 +14,7 @@ public class SysUser {
     @Column(name = "password")
     private String password;
     //@EntityColumn(column = "id", property = "roles", selectId = "tk.mybatis.mapper.mapper.SysRoleMapper.selectByPrimaryKey")
-    @EntityColumn(column = "id", property = "roles", selectId = "selectRoles")
+    @EntityColumn(column = "id", selectId = "selectRoles")
     private Set<SysRole> roles;
 
     public Integer getId() {
