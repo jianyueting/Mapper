@@ -28,6 +28,11 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="tk.mybatis.mapper.mapper.SysUserMapper">
+
+    <select id="xx" resultType="tk.mybatis.mapper.model.SysUser">
+        select * from sys_user
+    </select>
+
     <select id="selectRoles" resultType="tk.mybatis.mapper.model.SysRole">
         select * from sys_role where id in (select role_id from sys_user_role where user_id=#{id})
     </select>

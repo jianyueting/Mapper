@@ -25,6 +25,8 @@
 package tk.mybatis.mapper.mapperhelper;
 
 import org.apache.ibatis.mapping.MappedStatement;
+import org.apache.ibatis.mapping.ResultMap;
+import org.apache.ibatis.reflection.MetaObject;
 import tk.mybatis.mapper.MapperException;
 import tk.mybatis.mapper.entity.Config;
 import tk.mybatis.mapper.entity.EntityColumn;
@@ -200,5 +202,13 @@ public class EntityHelper {
         }
 
         MetaObjectUtil.forObject(ms).setValue("keyProperties", keyProperties.toArray(new String[]{}));
+    }
+
+    public static void setResultType(MappedStatement ms,Class<?> entityClass){
+        EntityTable entityTable = EntityHelper.getEntityTable(entityClass);
+        List<ResultMap> resultMaps = new ArrayList<ResultMap>();
+        resultMaps.add(entityTable.getResultMap(ms.getConfiguration()));
+        MetaObject metaObject = MetaObjectUtil.forObject(ms);
+        metaObject.setValue("resultMaps", Collections.unmodifiableList(resultMaps));
     }
 }

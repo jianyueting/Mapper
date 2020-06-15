@@ -25,7 +25,6 @@
 package tk.mybatis.mapper.mapperhelper;
 
 import org.apache.ibatis.mapping.MappedStatement;
-import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.mapping.SqlSource;
 import org.apache.ibatis.reflection.MetaObject;
 import org.apache.ibatis.scripting.xmltags.DynamicSqlSource;
@@ -43,9 +42,6 @@ import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
 import java.lang.reflect.Type;
 import java.text.MessageFormat;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
@@ -58,11 +54,11 @@ import static tk.mybatis.mapper.util.MsUtil.getMethodName;
  * @author liuzh
  */
 public abstract class MapperTemplate {
-    private static final XMLLanguageDriver     languageDriver = new XMLLanguageDriver();
-    protected            Map<String, Method>   methodMap      = new ConcurrentHashMap<String, Method>();
-    protected            Map<String, Class<?>> entityClassMap = new ConcurrentHashMap<String, Class<?>>();
-    protected            Class<?>              mapperClass;
-    protected            MapperHelper          mapperHelper;
+    private static final XMLLanguageDriver languageDriver = new XMLLanguageDriver();
+    protected Map<String, Method> methodMap = new ConcurrentHashMap<String, Method>();
+    protected Map<String, Class<?>> entityClassMap = new ConcurrentHashMap<String, Class<?>>();
+    protected Class<?> mapperClass;
+    protected MapperHelper mapperHelper;
 
     public MapperTemplate(Class<?> mapperClass, MapperHelper mapperHelper) {
         this.mapperClass = mapperClass;
@@ -121,11 +117,7 @@ public abstract class MapperTemplate {
      * @param entityClass
      */
     protected void setResultType(MappedStatement ms, Class<?> entityClass) {
-        EntityTable entityTable = EntityHelper.getEntityTable(entityClass);
-        List<ResultMap> resultMaps = new ArrayList<ResultMap>();
-        resultMaps.add(entityTable.getResultMap(ms.getConfiguration()));
-        MetaObject metaObject = MetaObjectUtil.forObject(ms);
-        metaObject.setValue("resultMaps", Collections.unmodifiableList(resultMaps));
+        EntityHelper.setResultType(ms, entityClass);
     }
 
     /**

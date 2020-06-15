@@ -7,5 +7,6 @@ import tk.mybatis.mapper.model.SysUser;
 import java.util.List;
 
 public interface SysUserMapper extends Mapper<SysUser> {
+    List<SysUser> xx();
     List<SysRole> selectRoles(Integer id);
 }

@@ -7,6 +7,8 @@ import tk.mybatis.mapper.mapper.MybatisHelper;
 import tk.mybatis.mapper.mapper.SysUserMapper;
 import tk.mybatis.mapper.model.SysUser;
 
+import java.util.List;
+
 public class UserRoleTest {
 
     @Test
@@ -14,6 +16,7 @@ public class UserRoleTest {
         SqlSession sqlSession = MybatisHelper.getSqlSession();
         try {
             SysUserMapper mapper = sqlSession.getMapper(SysUserMapper.class);
+            List<SysUser> users = mapper.xx();
             SysUser user = mapper.selectByPrimaryKey(0);
             Assert.assertEquals(2, user.getRoles().size());
         } finally {
