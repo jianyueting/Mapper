@@ -204,7 +204,7 @@ public class EntityHelper {
         MetaObjectUtil.forObject(ms).setValue("keyProperties", keyProperties.toArray(new String[]{}));
     }
 
-    public static void setResultType(MappedStatement ms,Class<?> entityClass){
+    public static void setResultType(MappedStatement ms, Class<?> entityClass) {
         EntityTable entityTable = EntityHelper.getEntityTable(entityClass);
         List<ResultMap> resultMaps = new ArrayList<ResultMap>();
         resultMaps.add(entityTable.getResultMap(ms.getConfiguration()));

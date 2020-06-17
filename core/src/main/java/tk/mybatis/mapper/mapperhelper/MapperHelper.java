@@ -293,18 +293,24 @@ public class MapperHelper {
                 MappedStatement ms = (MappedStatement) object;
                 if (ms.getId().startsWith(prefix)) {
                     processMappedStatement(ms);
-                }
-                //为包含EntityColumn注解的类替换xml里配置的ResultType
-                ResultMap resultMap = ms.getResultMaps().get(0);
-                Class<?> clazz = resultMap.getType();
-                if (existsColumnEntityAnnotation(clazz) && resultMap.getPropertyResultMappings().isEmpty()) {
-                    EntityHelper.setResultType(ms, clazz);
+                    //为包含EntityColumn注解的类替换xml里配置的ResultType
+                    List<ResultMap> resultMaps = ms.getResultMaps();
+                    if (!resultMaps.isEmpty()) {
+                        ResultMap resultMap = resultMaps.get(0);
+                        Class<?> clazz = resultMap.getType();
+                        if (existsColumnEntityAnnotation(clazz) && resultMap.getPropertyResultMappings().isEmpty()) {
+                            EntityHelper.setResultType(ms, clazz);
+                        }
+                    }
                 }
             }
         }
     }
 
     private boolean existsColumnEntityAnnotation(Class clazz) {
+        if (clazz.isPrimitive()) {
+            return false;
+        }
         Field[] fields = clazz.getDeclaredFields();
         for (Field field : fields) {
             if (field.isAnnotationPresent(EntityColumn.class)) {
