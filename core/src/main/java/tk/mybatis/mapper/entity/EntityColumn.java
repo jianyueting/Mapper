@@ -82,6 +82,14 @@ public class EntityColumn {
         return this.column + " = " + getColumnHolder(entityName);
     }
 
+    public String getColumnLikeHolder() {
+        return getColumnLikeHolder(null);
+    }
+
+    public String getColumnLikeHolder(String entityName) {
+        return this.column + " like " + getColumnHolder(entityName);
+    }
+
     /**
      * 返回格式如:#{entityName.age,jdbcType=NUMERIC,typeHandler=MyTypeHandler}
      *

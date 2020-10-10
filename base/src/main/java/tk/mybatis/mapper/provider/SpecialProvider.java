@@ -30,7 +30,6 @@ import tk.mybatis.mapper.mapperhelper.EntityHelper;
 import tk.mybatis.mapper.mapperhelper.MapperHelper;
 import tk.mybatis.mapper.mapperhelper.MapperTemplate;
 import tk.mybatis.mapper.mapperhelper.SqlHelper;
-import tk.mybatis.mapper.util.StringUtil;
 
 import java.util.Set;
 
@@ -56,7 +55,7 @@ public class SpecialProvider extends MapperTemplate {
         StringBuilder sql = new StringBuilder();
         sql.append("<bind name=\"listNotEmptyCheck\" value=\"@tk.mybatis.mapper.util.OGNL@notEmptyCollectionCheck(list, '" + ms.getId() + " 方法参数为空')\"/>");
         sql.append(SqlHelper.insertIntoTable(entityClass, tableName(entityClass), "list[0]"));
-        sql.append(SqlHelper.insertColumns(entityClass, true, false, false));
+        sql.append(SqlHelper.insertColumns(entityClass, true, true, false));
         sql.append(" VALUES ");
         sql.append("<foreach collection=\"list\" item=\"record\" separator=\",\" >");
         sql.append("<trim prefix=\"(\" suffix=\")\" suffixOverrides=\",\">");
@@ -65,7 +64,7 @@ public class SpecialProvider extends MapperTemplate {
         //当某个列有主键策略时，不需要考虑他的属性是否为空，因为如果为空，一定会根据主键策略给他生成一个值
         for (EntityColumn column : columnList) {
             if (!column.isId() && column.isInsertable()) {
-                sql.append(column.getColumnHolder("record") + ",");
+                sql.append(SqlHelper.getIfNotNull(column, column.getColumnHolder("record") + ",", false) + ",");
             }
         }
         sql.append("</trim>");
@@ -87,8 +86,8 @@ public class SpecialProvider extends MapperTemplate {
         //开始拼sql
         StringBuilder sql = new StringBuilder();
         sql.append(SqlHelper.insertIntoTable(entityClass, tableName(entityClass)));
-        sql.append(SqlHelper.insertColumns(entityClass, true, false, false));
-        sql.append(SqlHelper.insertValuesColumns(entityClass, true, false, false));
+        sql.append(SqlHelper.insertColumns(entityClass, true, true, false));
+        sql.append(SqlHelper.insertValuesColumns(entityClass, true, true, false));
 
         // 反射把MappedStatement中的设置主键名
         EntityHelper.setKeyProperties(EntityHelper.getPKColumns(entityClass), ms);

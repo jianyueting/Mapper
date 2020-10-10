@@ -25,8 +25,7 @@
 package tk.mybatis.mapper.mapperhelper;
 
 import tk.mybatis.mapper.LogicDeleteException;
-import tk.mybatis.mapper.annotation.LogicDelete;
-import tk.mybatis.mapper.annotation.Version;
+import tk.mybatis.mapper.annotation.*;
 import tk.mybatis.mapper.entity.EntityColumn;
 import tk.mybatis.mapper.entity.IDynamicTableName;
 import tk.mybatis.mapper.util.StringUtil;
@@ -53,7 +52,8 @@ public class SqlHelper {
         if (IDynamicTableName.class.isAssignableFrom(entityClass)) {
             StringBuilder sql = new StringBuilder();
             sql.append("<choose>");
-            sql.append("<when test=\"@tk.mybatis.mapper.util.OGNL@isDynamicParameter(_parameter) and dynamicTableName != null and dynamicTableName != ''\">");
+            sql.append("<when test=\"@tk.mybatis.mapper.util.OGNL@isDynamicParameter(_parameter) and dynamicTableName" +
+                    " != null and dynamicTableName != ''\">");
             sql.append("${dynamicTableName}\n");
             sql.append("</when>");
             //不支持指定列的时候查询全部列
@@ -109,6 +109,33 @@ public class SqlHelper {
         sql.append("<bind name=\"");
         sql.append(column.getProperty()).append("_cache\" ");
         sql.append("value=\"").append(column.getProperty()).append("\"/>");
+        return sql.toString();
+    }
+
+    public static String getLikeBindValue(EntityColumn column) {
+        String property = column.getProperty();
+        StringBuilder sql = new StringBuilder();
+        sql.append("<bind name=\"");
+        sql.append(property).append("\" ");
+        sql.append("value=\"'%'+").append(property).append("+'%'").append("\"/>");
+        return sql.toString();
+    }
+
+    public static String getRLikeBindValue(EntityColumn column) {
+        String property = column.getProperty();
+        StringBuilder sql = new StringBuilder();
+        sql.append("<bind name=\"");
+        sql.append(property).append("\" ");
+        sql.append("value=\"'%'+").append(property).append("\"/>");
+        return sql.toString();
+    }
+
+    public static String getLLikeBindValue(EntityColumn column) {
+        String property = column.getProperty();
+        StringBuilder sql = new StringBuilder();
+        sql.append("<bind name=\"");
+        sql.append(property).append("\" ");
+        sql.append("value=\"").append(property).append("+'%'").append("\"/>");
         return sql.toString();
     }
 
@@ -729,7 +756,18 @@ public class SqlHelper {
                     hasLogicDelete = true;
                     continue;
                 }
-                sql.append(getIfNotNull(column, " AND " + column.getColumnEqualsHolder(), empty));
+                if (null != column.getEntityField().getAnnotation(RLike.class)) {
+                    sql.append(getIfNotNull(column,
+                            getRLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                } else if (null != column.getEntityField().getAnnotation(LLike.class)) {
+                    sql.append(getIfNotNull(column,
+                            getLLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                } else if (null != column.getEntityField().getAnnotation(Like.class)) {
+                    sql.append(getIfNotNull(column,
+                            getLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                } else {
+                    sql.append(getIfNotNull(column, " AND " + column.getColumnEqualsHolder(), empty));
+                }
             }
         }
         if (useVersion) {
@@ -778,7 +816,18 @@ public class SqlHelper {
                     hasLogicDelete = true;
                     continue;
                 }
-                sql.append(getIfNotNull(column, " AND " + column.getColumnEqualsHolder(), empty));
+                if (null != column.getEntityField().getAnnotation(RLike.class)) {
+                    sql.append(getIfNotNull(column,
+                            getRLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                } else if (null != column.getEntityField().getAnnotation(LLike.class)) {
+                    sql.append(getIfNotNull(column,
+                            getLLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                } else if (null != column.getEntityField().getAnnotation(Like.class)) {
+                    sql.append(getIfNotNull(column,
+                            getLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                } else {
+                    sql.append(getIfNotNull(column, " AND " + column.getColumnEqualsHolder(), empty));
+                }
             }
         }
         if (useVersion) {
@@ -806,7 +855,8 @@ public class SqlHelper {
         for (EntityColumn column : columnSet) {
             if (column.getEntityField().isAnnotationPresent(Version.class)) {
                 if (hasVersion) {
-                    throw new VersionException(entityClass.getCanonicalName() + " 中包含多个带有 @Version 注解的字段，一个类中只能存在一个带有 @Version 注解的字段!");
+                    throw new VersionException(entityClass.getCanonicalName() + " 中包含多个带有 @Version 注解的字段，一个类中只能存在一个带有" +
+                            " @Version 注解的字段!");
                 }
                 hasVersion = true;
                 result = " AND " + column.getColumnEqualsHolder();
@@ -912,7 +962,8 @@ public class SqlHelper {
         for (EntityColumn column : columnSet) {
             if (column.getEntityField().isAnnotationPresent(LogicDelete.class)) {
                 if (hasLogicDelete) {
-                    throw new LogicDeleteException(entityClass.getCanonicalName() + " 中包含多个带有 @LogicDelete 注解的字段，一个类中只能存在一个带有 @LogicDelete 注解的字段!");
+                    throw new LogicDeleteException(entityClass.getCanonicalName() + " 中包含多个带有 @LogicDelete " +
+                            "注解的字段，一个类中只能存在一个带有 @LogicDelete 注解的字段!");
                 }
                 hasLogicDelete = true;
                 logicDeleteColumn = column;
@@ -1034,7 +1085,8 @@ public class SqlHelper {
      */
     public static String exampleCheck(Class<?> entityClass) {
         StringBuilder sql = new StringBuilder();
-        sql.append("<bind name=\"checkExampleEntityClass\" value=\"@tk.mybatis.mapper.util.OGNL@checkExampleEntityClass(_parameter, '");
+        sql.append("<bind name=\"checkExampleEntityClass\" value=\"@tk.mybatis.mapper.util" +
+                ".OGNL@checkExampleEntityClass(_parameter, '");
         sql.append(entityClass.getCanonicalName());
         sql.append("')\"/>");
         return sql.toString();
@@ -1060,14 +1112,17 @@ public class SqlHelper {
                 "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition}\n" +
                 "            </when>\n" +
                 "            <when test=\"criterion.singleValue\">\n" +
-                "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition} #{criterion.value}\n" +
+                "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition} #{criterion" +
+                ".value}\n" +
                 "            </when>\n" +
                 "            <when test=\"criterion.betweenValue\">\n" +
-                "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition} #{criterion.value} and #{criterion.secondValue}\n" +
+                "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition} #{criterion" +
+                ".value} and #{criterion.secondValue}\n" +
                 "            </when>\n" +
                 "            <when test=\"criterion.listValue\">\n" +
                 "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition}\n" +
-                "              <foreach close=\")\" collection=\"criterion.value\" item=\"listItem\" open=\"(\" separator=\",\">\n" +
+                "              <foreach close=\")\" collection=\"criterion.value\" item=\"listItem\" open=\"(\" " +
+                "separator=\",\">\n" +
                 "                #{listItem}\n" +
                 "              </foreach>\n" +
                 "            </when>\n" +
@@ -1100,14 +1155,17 @@ public class SqlHelper {
                 "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition}\n" +
                 "            </when>\n" +
                 "            <when test=\"criterion.singleValue\">\n" +
-                "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition} #{criterion.value}\n" +
+                "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition} #{criterion" +
+                ".value}\n" +
                 "            </when>\n" +
                 "            <when test=\"criterion.betweenValue\">\n" +
-                "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition} #{criterion.value} and #{criterion.secondValue}\n" +
+                "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition} #{criterion" +
+                ".value} and #{criterion.secondValue}\n" +
                 "            </when>\n" +
                 "            <when test=\"criterion.listValue\">\n" +
                 "              ${@tk.mybatis.mapper.util.OGNL@andOr(criterion)} ${criterion.condition}\n" +
-                "              <foreach close=\")\" collection=\"criterion.value\" item=\"listItem\" open=\"(\" separator=\",\">\n" +
+                "              <foreach close=\")\" collection=\"criterion.value\" item=\"listItem\" open=\"(\" " +
+                "separator=\",\">\n" +
                 "                #{listItem}\n" +
                 "              </foreach>\n" +
                 "            </when>\n" +
