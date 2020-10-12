@@ -25,6 +25,7 @@
 package tk.mybatis.mapper.provider.base;
 
 import org.apache.ibatis.mapping.MappedStatement;
+import tk.mybatis.mapper.code.LikeType;
 import tk.mybatis.mapper.mapperhelper.MapperHelper;
 import tk.mybatis.mapper.mapperhelper.MapperTemplate;
 import tk.mybatis.mapper.mapperhelper.SqlHelper;
@@ -53,7 +54,7 @@ public class BaseSelectProvider extends MapperTemplate {
         StringBuilder sql = new StringBuilder();
         sql.append(SqlHelper.selectAllColumns(entityClass));
         sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
-        sql.append(SqlHelper.whereAllIfColumns(entityClass, isNotEmpty()));
+        sql.append(SqlHelper.whereAllIfColumns(entityClass, isNotEmpty(), null));
         return sql.toString();
     }
 
@@ -70,7 +71,7 @@ public class BaseSelectProvider extends MapperTemplate {
         StringBuilder sql = new StringBuilder();
         sql.append(SqlHelper.selectAllColumns(entityClass));
         sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
-        sql.append(SqlHelper.whereAllIfColumnsForUpdate(entityClass, isNotEmpty()));
+        sql.append(SqlHelper.whereAllIfColumnsForUpdate(entityClass, isNotEmpty(), null));
         return sql.toString();
     }
 
@@ -87,7 +88,7 @@ public class BaseSelectProvider extends MapperTemplate {
         StringBuilder sql = new StringBuilder();
         sql.append(SqlHelper.selectAllColumns(entityClass));
         sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
-        sql.append(SqlHelper.whereAllIfColumns(entityClass, isNotEmpty()));
+        sql.append(SqlHelper.whereAllIfColumns(entityClass, isNotEmpty(), LikeType.SELECT));
         sql.append(SqlHelper.orderByDefault(entityClass));
         return sql.toString();
     }
@@ -105,7 +106,7 @@ public class BaseSelectProvider extends MapperTemplate {
         StringBuilder sql = new StringBuilder();
         sql.append(SqlHelper.selectAllColumns(entityClass));
         sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
-        sql.append(SqlHelper.whereAllIfColumnsForUpdate(entityClass, isNotEmpty()));
+        sql.append(SqlHelper.whereAllIfColumnsForUpdate(entityClass, isNotEmpty(), LikeType.SELECT));
         sql.append(SqlHelper.orderByDefault(entityClass));
         return sql.toString();
     }
@@ -163,7 +164,7 @@ public class BaseSelectProvider extends MapperTemplate {
         StringBuilder sql = new StringBuilder();
         sql.append(SqlHelper.selectCount(entityClass));
         sql.append(SqlHelper.fromTable(entityClass, tableName(entityClass)));
-        sql.append(SqlHelper.whereAllIfColumns(entityClass, isNotEmpty()));
+        sql.append(SqlHelper.whereAllIfColumns(entityClass, isNotEmpty(), LikeType.SELECT_COUNT));
         return sql.toString();
     }
 

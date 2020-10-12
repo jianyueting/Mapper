@@ -24,8 +24,10 @@
 
 package tk.mybatis.mapper.mapperhelper;
 
+import tk.mybatis.mapper.LikeTypeException;
 import tk.mybatis.mapper.LogicDeleteException;
 import tk.mybatis.mapper.annotation.*;
+import tk.mybatis.mapper.code.LikeType;
 import tk.mybatis.mapper.entity.EntityColumn;
 import tk.mybatis.mapper.entity.IDynamicTableName;
 import tk.mybatis.mapper.util.StringUtil;
@@ -728,8 +730,8 @@ public class SqlHelper {
      * @param empty
      * @return
      */
-    public static String whereAllIfColumns(Class<?> entityClass, boolean empty) {
-        return whereAllIfColumns(entityClass, empty, false);
+    public static String whereAllIfColumns(Class<?> entityClass, boolean empty, LikeType type) {
+        return whereAllIfColumns(entityClass, empty, false, type);
     }
 
     /**
@@ -740,7 +742,7 @@ public class SqlHelper {
      * @param useVersion
      * @return
      */
-    public static String whereAllIfColumns(Class<?> entityClass, boolean empty, boolean useVersion) {
+    public static String whereAllIfColumns(Class<?> entityClass, boolean empty, boolean useVersion, LikeType type) {
         StringBuilder sql = new StringBuilder();
         boolean hasLogicDelete = false;
 
@@ -756,15 +758,32 @@ public class SqlHelper {
                     hasLogicDelete = true;
                     continue;
                 }
-                if (null != column.getEntityField().getAnnotation(RLike.class)) {
-                    sql.append(getIfNotNull(column,
-                            getRLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
-                } else if (null != column.getEntityField().getAnnotation(LLike.class)) {
-                    sql.append(getIfNotNull(column,
-                            getLLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
-                } else if (null != column.getEntityField().getAnnotation(Like.class)) {
-                    sql.append(getIfNotNull(column,
-                            getLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                if (null != type) {
+                    RLike rlike = column.getEntityField().getAnnotation(RLike.class);
+                    LLike llike = column.getEntityField().getAnnotation(LLike.class);
+                    Like like = column.getEntityField().getAnnotation(Like.class);
+                    int count = 0;
+                    if(rlike!=null){
+                        count ++;
+                    }
+                    if(llike!=null){
+                        count ++;
+                    }
+                    if(like!=null){
+                        count ++;
+                    }
+                    if(count>1){
+                        throw new LikeTypeException(column.getEntityField().getName() + "不能同时使用两个以上的Like注解");
+                    }
+                    if (null != like && existsType(like.type(), type)) {
+                        sql.append(getIfNotNull(column, getLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                    } else if (null != rlike && existsType(rlike.type(), type)) {
+                        sql.append(getIfNotNull(column, getRLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                    } else if (null != llike && existsType(llike.type(), type)) {
+                        sql.append(getIfNotNull(column, getLLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                    } else {
+                        sql.append(getIfNotNull(column, " AND " + column.getColumnEqualsHolder(), empty));
+                    }
                 } else {
                     sql.append(getIfNotNull(column, " AND " + column.getColumnEqualsHolder(), empty));
                 }
@@ -781,6 +800,18 @@ public class SqlHelper {
         return sql.toString();
     }
 
+    private static boolean existsType(LikeType[] types, LikeType type) {
+        if (types.length == 0) {
+            return true;
+        }
+        for (LikeType s : types) {
+            if (s == type) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     /**
      * where所有列的条件，会判断是否!=null
      *
@@ -788,8 +819,8 @@ public class SqlHelper {
      * @param empty
      * @return
      */
-    public static String whereAllIfColumnsForUpdate(Class<?> entityClass, boolean empty) {
-        return whereAllIfColumnsForUpdate(entityClass, empty, false);
+    public static String whereAllIfColumnsForUpdate(Class<?> entityClass, boolean empty, LikeType type) {
+        return whereAllIfColumnsForUpdate(entityClass, empty, false, type);
     }
 
     /**
@@ -800,7 +831,7 @@ public class SqlHelper {
      * @param useVersion
      * @return
      */
-    public static String whereAllIfColumnsForUpdate(Class<?> entityClass, boolean empty, boolean useVersion) {
+    public static String whereAllIfColumnsForUpdate(Class<?> entityClass, boolean empty, boolean useVersion, LikeType type) {
         StringBuilder sql = new StringBuilder();
         boolean hasLogicDelete = false;
 
@@ -816,15 +847,32 @@ public class SqlHelper {
                     hasLogicDelete = true;
                     continue;
                 }
-                if (null != column.getEntityField().getAnnotation(RLike.class)) {
-                    sql.append(getIfNotNull(column,
-                            getRLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
-                } else if (null != column.getEntityField().getAnnotation(LLike.class)) {
-                    sql.append(getIfNotNull(column,
-                            getLLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
-                } else if (null != column.getEntityField().getAnnotation(Like.class)) {
-                    sql.append(getIfNotNull(column,
-                            getLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                if (null != type) {
+                    RLike rlike = column.getEntityField().getAnnotation(RLike.class);
+                    LLike llike = column.getEntityField().getAnnotation(LLike.class);
+                    Like like = column.getEntityField().getAnnotation(Like.class);
+                    int count = 0;
+                    if(rlike!=null){
+                        count ++;
+                    }
+                    if(llike!=null){
+                        count ++;
+                    }
+                    if(like!=null){
+                        count ++;
+                    }
+                    if(count>1){
+                        throw new LikeTypeException(column.getEntityField().getName() + "不能同时使用两个以上的Like注解");
+                    }
+                    if (null != like && existsType(like.type(), type)) {
+                        sql.append(getIfNotNull(column, getLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                    } else if (null != rlike && existsType(rlike.type(), type)) {
+                        sql.append(getIfNotNull(column, getRLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                    } else if (null != llike && existsType(llike.type(), type)) {
+                        sql.append(getIfNotNull(column, getLLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
+                    } else {
+                        sql.append(getIfNotNull(column, " AND " + column.getColumnEqualsHolder(), empty));
+                    }
                 } else {
                     sql.append(getIfNotNull(column, " AND " + column.getColumnEqualsHolder(), empty));
                 }

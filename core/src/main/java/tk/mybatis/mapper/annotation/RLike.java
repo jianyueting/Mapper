@@ -1,5 +1,7 @@
 package tk.mybatis.mapper.annotation;
 
+import tk.mybatis.mapper.code.LikeType;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -13,4 +15,5 @@ import java.lang.annotation.Target;
 @Target({ElementType.FIELD})
 @Retention(RetentionPolicy.RUNTIME)
 public @interface RLike {
+    LikeType[] type() default {};
 }

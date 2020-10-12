@@ -26,6 +26,7 @@ package tk.mybatis.mapper.provider.base;
 
 import org.apache.ibatis.mapping.MappedStatement;
 import org.apache.ibatis.mapping.SqlCommandType;
+import tk.mybatis.mapper.code.LikeType;
 import tk.mybatis.mapper.mapperhelper.EntityHelper;
 import tk.mybatis.mapper.mapperhelper.MapperHelper;
 import tk.mybatis.mapper.mapperhelper.MapperTemplate;
@@ -66,7 +67,7 @@ public class BaseDeleteProvider extends MapperTemplate {
         } else {
             sql.append(SqlHelper.deleteFromTable(entityClass, tableName(entityClass)));
         }
-        sql.append(SqlHelper.whereAllIfColumns(entityClass, isNotEmpty()));
+        sql.append(SqlHelper.whereAllIfColumns(entityClass, isNotEmpty(), LikeType.DELETE));
         return sql.toString();
     }
 
