@@ -36,6 +36,7 @@ import org.apache.ibatis.mapping.ResultMap;
 import org.apache.ibatis.session.Configuration;
 import tk.mybatis.mapper.MapperException;
 import tk.mybatis.mapper.annotation.EntityColumn;
+import tk.mybatis.mapper.annotation.FunctionName;
 import tk.mybatis.mapper.annotation.RegisterMapper;
 import tk.mybatis.mapper.entity.Config;
 import tk.mybatis.mapper.mapperhelper.resolve.EntityResolve;
@@ -102,24 +103,28 @@ public class MapperHelper {
         Method[] methods = mapperClass.getDeclaredMethods();
         Class<?> templateClass = null;
         Class<?> tempClass = null;
-        Set<String> methodSet = new HashSet<String>();
+        HashMap<String, String> methodMap = new HashMap<String, String>();
         for (Method method : methods) {
             if (method.isAnnotationPresent(SelectProvider.class)) {
                 SelectProvider provider = method.getAnnotation(SelectProvider.class);
                 tempClass = provider.type();
-                methodSet.add(method.getName());
+                if (method.isAnnotationPresent(FunctionName.class)) {
+                    methodMap.put(method.getName(), "callProcedure");
+                } else {
+                    methodMap.put(method.getName(), method.getName());
+                }
             } else if (method.isAnnotationPresent(InsertProvider.class)) {
                 InsertProvider provider = method.getAnnotation(InsertProvider.class);
                 tempClass = provider.type();
-                methodSet.add(method.getName());
+                methodMap.put(method.getName(), method.getName());
             } else if (method.isAnnotationPresent(DeleteProvider.class)) {
                 DeleteProvider provider = method.getAnnotation(DeleteProvider.class);
                 tempClass = provider.type();
-                methodSet.add(method.getName());
+                methodMap.put(method.getName(), method.getName());
             } else if (method.isAnnotationPresent(UpdateProvider.class)) {
                 UpdateProvider provider = method.getAnnotation(UpdateProvider.class);
                 tempClass = provider.type();
-                methodSet.add(method.getName());
+                methodMap.put(method.getName(), method.getName());
             }
             if (templateClass == null) {
                 templateClass = tempClass;
@@ -139,12 +144,12 @@ public class MapperHelper {
             throw new MapperException("实例化MapperTemplate对象失败:" + e.getMessage());
         }
         //注册方法
-        for (String methodName : methodSet) {
+        for (Map.Entry<String, String> entry : methodMap.entrySet()) {
             try {
-                mapperTemplate.addMethodMap(methodName, templateClass.getMethod(methodName, MappedStatement.class));
+                mapperTemplate.addMethodMap(entry.getKey(), templateClass.getMethod(entry.getValue(), MappedStatement.class));
             } catch (NoSuchMethodException e) {
-                log.error(templateClass.getCanonicalName() + "中缺少" + methodName + "方法!", e);
-                throw new MapperException(templateClass.getCanonicalName() + "中缺少" + methodName + "方法!");
+                log.error(templateClass.getCanonicalName() + "中缺少" + entry.getValue() + "方法!", e);
+                throw new MapperException(templateClass.getCanonicalName() + "中缺少" + entry.getValue() + "方法!");
             }
         }
         return mapperTemplate;

@@ -98,7 +98,8 @@ public class TestProcParam {
 }
 ```
 
-PostgreSQL存储过程和MySQL、Oracle的有所不同，直接在接口方法名上配置`@tk.mybatis.mapper.additional.procedure.ProcedureName()`注解，表示过程名称。不用定义过程参数，直接将过程参数配置到接口方法上。如果有返回值，接口方法定义返回值Object，如果没有返回值，方法返回值定义为void。
+### PostgreSQL函数调用
+PostgreSQL函数过程和MySQL、Oracle的有所不同，直接在接口方法名上配置`@tk.mybatis.mapper.annotation.FunctionName()`注解，表示函数名称。直接使用方法参数表示函数过程。
 
 Mapper接口如下：
 ```java
@@ -106,14 +107,19 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.mapping.StatementType;
 import tk.mybatis.mapper.additional.procedure.PostgresProcedureProvider;
-import tk.mybatis.mapper.additional.procedure.ProcedureName;
+import tk.mybatis.mapper.annotation.FunctionName;
 import tk.mybatis.mapper.annotation.RegisterMapper;
 
 @RegisterMapper
 public interface PostgresProcedureMapper {
     @SelectProvider(type = PostgresProcedureProvider.class, method = "dynamicSQL")
     @Options(statementType = StatementType.CALLABLE)
-    @ProcedureName("plus")
-    Object callProcedure(int a, int b);
+    @FunctionName("plus")
+    Object plus(int a, int b);
+
+    @SelectProvider(type = PostgresProcedureProvider.class, method = "dynamicSQL")
+    @Options(statementType = StatementType.CALLABLE)
+    @FunctionName("minus")
+    Object minus(int a, int b);
 }
 ```

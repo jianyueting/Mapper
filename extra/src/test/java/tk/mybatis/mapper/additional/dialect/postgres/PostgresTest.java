@@ -57,8 +57,10 @@ public class PostgresTest extends BaseTest {
         SqlSession sqlSession = getSqlSession();
         try {
             TestMapper mapper = sqlSession.getMapper(TestMapper.class);
-            Object object = mapper.callProcedure(1, 2);
+            Object object = mapper.plus(1, 2);
             System.out.println(object);
+            Object object2 = mapper.minus(1, 2);
+            System.out.println(object2);
         } finally {
             sqlSession.close();
         }

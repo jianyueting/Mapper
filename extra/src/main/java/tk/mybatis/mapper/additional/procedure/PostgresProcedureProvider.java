@@ -1,12 +1,11 @@
 package tk.mybatis.mapper.additional.procedure;
 
 import org.apache.ibatis.mapping.MappedStatement;
-import tk.mybatis.mapper.MapperException;
+import tk.mybatis.mapper.annotation.FunctionName;
 import tk.mybatis.mapper.mapperhelper.MapperHelper;
 import tk.mybatis.mapper.mapperhelper.MapperTemplate;
 import tk.mybatis.mapper.util.MsUtil;
 
-import java.lang.annotation.Annotation;
 import java.lang.reflect.Method;
 import java.util.stream.Stream;
 
@@ -20,19 +19,19 @@ public class PostgresProcedureProvider extends MapperTemplate {
 
     public String callProcedure(MappedStatement ms) throws Exception {
         Class<?> mapperClass = MsUtil.getMapperClass(ms);
+        String id = ms.getId();
+        String[] array = id.split("\\.");
+        String methodName = array[array.length - 1];
         Method[] methods = mapperClass.getMethods();
-        Method method = Stream.of(methods).filter(method1 -> "callProcedure".equals(method1.getName())).findFirst().get();
+        Method method = Stream.of(methods).filter(method1 -> methodName.equals(method1.getName())).findFirst().get();
         Class[] parameterTypes = method.getParameterTypes();
-        int leng = parameterTypes.length;
-        Annotation annotation = method.getAnnotation(ProcedureName.class);
-        if (annotation == null) {
-            throw new MapperException("方法没有配置tk.mybatis.mapper.additional.procedure.ProcedureName注解");
-        }
-        String name = (String) annotation.annotationType().getDeclaredMethod("value").invoke(annotation);
+        int length = parameterTypes.length;
+        FunctionName functionName = method.getAnnotation(FunctionName.class);
+        String name = functionName.value();
 
         StringBuilder stringBuilder = new StringBuilder("SELECT ");
         stringBuilder.append(name).append(" (");
-        for (int i = 0; i < leng; i++) {
+        for (int i = 0; i < length; i++) {
             stringBuilder.append("#{arg").append(i).append("},");
         }
         stringBuilder.setLength(stringBuilder.length() - 1);

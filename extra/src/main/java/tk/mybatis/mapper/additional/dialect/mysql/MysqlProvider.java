@@ -13,6 +13,6 @@ public class MysqlProvider extends MapperTemplate {
     }
 
     public String currentTime(MappedStatement ms){
-        return "SELECT now()";
+        return "SELECT sysdate()";
     }
 }
