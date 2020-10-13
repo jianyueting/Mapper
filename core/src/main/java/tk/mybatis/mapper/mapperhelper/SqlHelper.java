@@ -762,19 +762,7 @@ public class SqlHelper {
                     RLike rlike = column.getEntityField().getAnnotation(RLike.class);
                     LLike llike = column.getEntityField().getAnnotation(LLike.class);
                     Like like = column.getEntityField().getAnnotation(Like.class);
-                    int count = 0;
-                    if(rlike!=null){
-                        count ++;
-                    }
-                    if(llike!=null){
-                        count ++;
-                    }
-                    if(like!=null){
-                        count ++;
-                    }
-                    if(count>1){
-                        throw new LikeTypeException(column.getEntityField().getName() + "不能同时使用两个以上的Like注解");
-                    }
+                    checkLikeType(rlike, llike, like);
                     if (null != like && existsType(like.type(), type)) {
                         sql.append(getIfNotNull(column, getLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
                     } else if (null != rlike && existsType(rlike.type(), type)) {
@@ -798,6 +786,42 @@ public class SqlHelper {
 
         sql.append("</where>");
         return sql.toString();
+    }
+
+    private static int countOf(LikeType[] types, LikeType type) {
+        if (types.length == 0) {
+            return 1;
+        }
+        for (LikeType likeType : types) {
+            if (likeType == type) {
+                return 1;
+            }
+        }
+        return 0;
+    }
+
+    private static void checkLikeType(RLike rLike, LLike lLike, Like like, LikeType type) {
+        int rCount = 0;
+        if (rLike != null) {
+            rCount = countOf(rLike.type(), type);
+        }
+        int lCount = 0;
+        if (lLike != null) {
+            lCount = countOf(lLike.type(), type);
+        }
+        int count = 0;
+        if (like != null) {
+            count = countOf(like.type(), type);
+        }
+        if (rCount + lCount + count > 1) {
+            throw new LikeTypeException(type + "只能在RLike、LLike、Like注解中使用一次");
+        }
+    }
+
+    private static void checkLikeType(RLike rLike, LLike lLike, Like like) {
+        checkLikeType(rLike, lLike, like, LikeType.SELECT);
+        checkLikeType(rLike, lLike, like, LikeType.SELECT_COUNT);
+        checkLikeType(rLike, lLike, like, LikeType.DELETE);
     }
 
     private static boolean existsType(LikeType[] types, LikeType type) {
@@ -851,19 +875,7 @@ public class SqlHelper {
                     RLike rlike = column.getEntityField().getAnnotation(RLike.class);
                     LLike llike = column.getEntityField().getAnnotation(LLike.class);
                     Like like = column.getEntityField().getAnnotation(Like.class);
-                    int count = 0;
-                    if(rlike!=null){
-                        count ++;
-                    }
-                    if(llike!=null){
-                        count ++;
-                    }
-                    if(like!=null){
-                        count ++;
-                    }
-                    if(count>1){
-                        throw new LikeTypeException(column.getEntityField().getName() + "不能同时使用两个以上的Like注解");
-                    }
+                    checkLikeType(rlike, llike, like);
                     if (null != like && existsType(like.type(), type)) {
                         sql.append(getIfNotNull(column, getLikeBindValue(column) + "\n AND " + column.getColumnLikeHolder(), empty));
                     } else if (null != rlike && existsType(rlike.type(), type)) {
