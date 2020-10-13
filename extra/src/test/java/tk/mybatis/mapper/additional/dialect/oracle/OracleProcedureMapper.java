@@ -4,6 +4,7 @@ import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.SelectProvider;
 import org.apache.ibatis.mapping.StatementType;
 import tk.mybatis.mapper.additional.procedure.ProcedureProvider;
+import tk.mybatis.mapper.annotation.ProcedureName;
 
 /**
  * @author Jian Yueting
@@ -12,5 +13,6 @@ import tk.mybatis.mapper.additional.procedure.ProcedureProvider;
 public interface OracleProcedureMapper {
     @SelectProvider(type = ProcedureProvider.class, method = "dynamicSQL")
     @Options(statementType = StatementType.CALLABLE)
-    void callProcedure(TestProcParam param);
+    @ProcedureName("cube_sum")
+    void sum(TestProcParam param);
 }

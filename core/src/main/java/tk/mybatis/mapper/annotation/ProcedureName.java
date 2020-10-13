@@ -9,7 +9,7 @@ import java.lang.annotation.Target;
  * @author Jian Yueting
  */
 @Retention(RetentionPolicy.RUNTIME)
-@Target({ElementType.TYPE, ElementType.METHOD})
+@Target({ElementType.METHOD})
 public @interface ProcedureName {
     String value();
 }

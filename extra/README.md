@@ -62,18 +62,18 @@ import tk.mybatis.mapper.additional.procedure.ProcedureProvider;
 public interface Proc1Mapper {
     @SelectProvider(type = ProcedureProvider.class, method = "dynamicSQL")
     @Options(statementType = StatementType.CALLABLE)
-    void callProcedure(TestProcParam param); //TestProcParam为调用过程参数
+    @ProcedureName("test_proc")
+    void testProc(TestProcParam param); //TestProcParam为调用过程参数
 }
 ```
 
 参数类示例如下，在class上增加`@tk.mybatis.mapper.additional.procedure.ProcedureName()`注解，表示过程名。按过程参数名配置参数类的属性。属性上增加`tk.mybatis.mapper.additional.procedure.ProcedureParam`注解。主要配置参数jdbcType和mode。
 
 ```java
-import tk.mybatis.mapper.additional.procedure.ProcedureName;
-import tk.mybatis.mapper.additional.procedure.ProcedureParam;
-import tk.mybatis.mapper.additional.procedure.ProcedureParamMode;
+import tk.mybatis.mapper.annotation.ProcedureName;
+import tk.mybatis.mapper.annotation.ProcedureParam;
+import tk.mybatis.mapper.code.ProcedureParamMode;
 
-@ProcedureName("test_proc")
 public class TestProcParam {
     @ProcedureParam(jdbcType = JdbcType.VARCHAR, mode = ProcedureParamMode.IN)
     private String p1;

@@ -47,7 +47,7 @@ public class MysqlTest extends BaseTest {
             TestMapper mapper = sqlSession.getMapper(TestMapper.class);
             TestProcParam param = new TestProcParam();
             param.setP1("world");
-            mapper.callProcedure(param);
+            mapper.testProc(param);
             System.out.println(param.getP2());
         } finally {
             sqlSession.close();

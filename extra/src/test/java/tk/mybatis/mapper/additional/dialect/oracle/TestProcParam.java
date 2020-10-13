@@ -1,14 +1,12 @@
 package tk.mybatis.mapper.additional.dialect.oracle;
 
 import org.apache.ibatis.type.JdbcType;
-import tk.mybatis.mapper.annotation.ProcedureName;
 import tk.mybatis.mapper.annotation.ProcedureParam;
 import tk.mybatis.mapper.code.ProcedureParamMode;
 
 /**
  * @author Jian Yueting
  */
-@ProcedureName("cube_sum")
 public class TestProcParam {
     @ProcedureParam(jdbcType = JdbcType.INTEGER, mode = ProcedureParamMode.IN)
     private int param1;

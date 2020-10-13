@@ -1,14 +1,12 @@
 package tk.mybatis.mapper.additional.dialect.mysql;
 
 import org.apache.ibatis.type.JdbcType;
-import tk.mybatis.mapper.annotation.ProcedureName;
 import tk.mybatis.mapper.annotation.ProcedureParam;
 import tk.mybatis.mapper.code.ProcedureParamMode;
 
 /**
  * @author Jian Yueting
  */
-@ProcedureName("test_proc")
 public class TestProcParam {
     @ProcedureParam(jdbcType = JdbcType.VARCHAR, mode = ProcedureParamMode.IN)
     private String p1;

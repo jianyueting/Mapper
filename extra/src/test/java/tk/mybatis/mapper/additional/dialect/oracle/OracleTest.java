@@ -120,7 +120,7 @@ public class OracleTest extends BaseTest {
             TestProcParam procParam = new TestProcParam();
             procParam.setParam1(1);
             procParam.setParam2(100);
-            mapper.callProcedure(procParam);
+            mapper.sum(procParam);
             System.out.println(procParam.getRes());
         } finally {
             sqlSession.close();
