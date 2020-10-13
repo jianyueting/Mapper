@@ -1,9 +1,9 @@
 package tk.mybatis.mapper.additional.dialect.mysql;
 
 import org.apache.ibatis.type.JdbcType;
-import tk.mybatis.mapper.additional.procedure.ProcedureName;
-import tk.mybatis.mapper.additional.procedure.ProcedureParam;
-import tk.mybatis.mapper.additional.procedure.ProcedureParamMode;
+import tk.mybatis.mapper.annotation.ProcedureName;
+import tk.mybatis.mapper.annotation.ProcedureParam;
+import tk.mybatis.mapper.code.ProcedureParamMode;
 
 /**
  * @author Jian Yueting

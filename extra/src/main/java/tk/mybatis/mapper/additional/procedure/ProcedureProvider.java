@@ -2,6 +2,8 @@ package tk.mybatis.mapper.additional.procedure;
 
 import org.apache.ibatis.mapping.MappedStatement;
 import tk.mybatis.mapper.MapperException;
+import tk.mybatis.mapper.annotation.ProcedureName;
+import tk.mybatis.mapper.annotation.ProcedureParam;
 import tk.mybatis.mapper.mapperhelper.MapperHelper;
 import tk.mybatis.mapper.mapperhelper.MapperTemplate;
 import tk.mybatis.mapper.util.MsUtil;
@@ -22,17 +24,14 @@ public class ProcedureProvider extends MapperTemplate {
 
     public String callProcedure(MappedStatement ms) throws Exception {
         Class<?> mapperClass = MsUtil.getMapperClass(ms);
+        String methodName = MsUtil.getMethodName(ms);
         Method[] methods = mapperClass.getMethods();
-        Method method = Stream.of(methods).filter(method1 -> "callProcedure".equals(method1.getName())).findFirst().get();
+        Method method = Stream.of(methods).filter(method1 -> methodName.equals(method1.getName())).findFirst().get();
         Class[] parameterTypes = method.getParameterTypes();
         Class parameterType = parameterTypes[0];
-        Annotation procedureName = parameterType.getAnnotation(ProcedureName.class);
-        if (procedureName == null) {
-            throw new MapperException("参数没有配置tk.mybatis.mapper.additional.procedure.ProcedureName注解");
-        }
-        Annotation annotation = parameterType.getAnnotation(ProcedureName.class);
-        String name = (String) annotation.annotationType().getDeclaredMethod("value").invoke(annotation);
 
+        ProcedureName procedureName = method.getAnnotation(ProcedureName.class);
+        String name = procedureName.value();
         StringBuilder stringBuilder = new StringBuilder("CALL ");
         stringBuilder.append(name).append(" (");
         Field[] fields = parameterType.getDeclaredFields();

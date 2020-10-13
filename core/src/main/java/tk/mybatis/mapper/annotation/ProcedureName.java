@@ -1,4 +1,4 @@
-package tk.mybatis.mapper.additional.procedure;
+package tk.mybatis.mapper.annotation;
 
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Retention;

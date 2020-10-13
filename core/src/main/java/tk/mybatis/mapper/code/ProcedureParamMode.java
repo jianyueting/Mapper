@@ -1,4 +1,4 @@
-package tk.mybatis.mapper.additional.procedure;
+package tk.mybatis.mapper.code;
 
 /**
  * @author Jian Yueting

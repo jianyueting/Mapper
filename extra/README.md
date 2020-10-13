@@ -103,22 +103,18 @@ PostgreSQL函数过程和MySQL、Oracle的有所不同，直接在接口方法�
 
 Mapper接口如下：
 ```java
-import org.apache.ibatis.annotations.Options;
 import org.apache.ibatis.annotations.SelectProvider;
-import org.apache.ibatis.mapping.StatementType;
-import tk.mybatis.mapper.additional.procedure.PostgresProcedureProvider;
+import tk.mybatis.mapper.additional.procedure.FunctionProvider;
 import tk.mybatis.mapper.annotation.FunctionName;
 import tk.mybatis.mapper.annotation.RegisterMapper;
 
 @RegisterMapper
 public interface PostgresProcedureMapper {
-    @SelectProvider(type = PostgresProcedureProvider.class, method = "dynamicSQL")
-    @Options(statementType = StatementType.CALLABLE)
+    @SelectProvider(type = FunctionProvider.class, method = "dynamicSQL")
     @FunctionName("plus")
     Object plus(int a, int b);
 
-    @SelectProvider(type = PostgresProcedureProvider.class, method = "dynamicSQL")
-    @Options(statementType = StatementType.CALLABLE)
+    @SelectProvider(type = FunctionProvider.class, method = "dynamicSQL")
     @FunctionName("minus")
     Object minus(int a, int b);
 }

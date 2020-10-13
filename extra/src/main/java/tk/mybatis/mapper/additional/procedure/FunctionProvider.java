@@ -12,16 +12,14 @@ import java.util.stream.Stream;
 /**
  * @author Jian Yueting
  */
-public class PostgresProcedureProvider extends MapperTemplate {
-    public PostgresProcedureProvider(Class<?> mapperClass, MapperHelper mapperHelper) {
+public class FunctionProvider extends MapperTemplate {
+    public FunctionProvider(Class<?> mapperClass, MapperHelper mapperHelper) {
         super(mapperClass, mapperHelper);
     }
 
     public String callProcedure(MappedStatement ms) throws Exception {
         Class<?> mapperClass = MsUtil.getMapperClass(ms);
-        String id = ms.getId();
-        String[] array = id.split("\\.");
-        String methodName = array[array.length - 1];
+        String methodName = MsUtil.getMethodName(ms);
         Method[] methods = mapperClass.getMethods();
         Method method = Stream.of(methods).filter(method1 -> methodName.equals(method1.getName())).findFirst().get();
         Class[] parameterTypes = method.getParameterTypes();

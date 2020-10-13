@@ -37,6 +37,7 @@ import org.apache.ibatis.session.Configuration;
 import tk.mybatis.mapper.MapperException;
 import tk.mybatis.mapper.annotation.EntityColumn;
 import tk.mybatis.mapper.annotation.FunctionName;
+import tk.mybatis.mapper.annotation.ProcedureName;
 import tk.mybatis.mapper.annotation.RegisterMapper;
 import tk.mybatis.mapper.entity.Config;
 import tk.mybatis.mapper.mapperhelper.resolve.EntityResolve;
@@ -108,7 +109,7 @@ public class MapperHelper {
             if (method.isAnnotationPresent(SelectProvider.class)) {
                 SelectProvider provider = method.getAnnotation(SelectProvider.class);
                 tempClass = provider.type();
-                if (method.isAnnotationPresent(FunctionName.class)) {
+                if (method.isAnnotationPresent(FunctionName.class) || method.isAnnotationPresent(ProcedureName.class)) {
                     methodMap.put(method.getName(), "callProcedure");
                 } else {
                     methodMap.put(method.getName(), method.getName());
